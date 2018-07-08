@@ -7,35 +7,66 @@
     document.ConvoCounter = {};
 
     document.addEventListener('DOMContentLoaded', initApp);
-    document.getElementById('startButton').addEventListener('click', startTimer);
 
     function initApp() {
         document.ConvoCounter.participantCount = 1;
-        const formElement = document.getElementById('participants');
-        addPersonInputs(formElement);
-        addPersonInputs(formElement);
-        addPersonInputs(formElement);
-        addPersonInputs(formElement);
+        document.getElementById('startButton').addEventListener('click', startTimer);
+        document.getElementById('startButton').style.display = 'none';
+        document.getElementById('participant-buttons').style.display = 'none';
+        addPersonInput();
     }
 
-    function addPersonInputs(form) {
-        const pname = `pname${document.ConvoCounter.participantCount++}`;
-        const el = appendElement(form, 'label', {
-            for: pname
+    function addPersonInput() {
+        const formElement = document.getElementById('participants');
+        const count = document.ConvoCounter.participantCount++;
+        const pname = `pname${count}`;
+        const el = appendElement(formElement, 'label', {
+            for: pname,
         });
-        appendElement(el, 'input', {
+        el.textContent = `Participant ${count}: `;
+        const input = appendElement(el, 'input', {
             class: 'participant-name',
             type: 'text',
             name: pname,
-            placeholder: 'Participant Name'
+            placeholder: 'Participant Name',
         });
+        // input.addEventListener('blur', inputBlur);
+        input.addEventListener('keypress', inputKey);
+        input.focus();
     }
+
+    function inputBlur(event) {        
+        if (event.target.value !== '') {
+            event.target.removeEventListener('blur', inputBlur);
+            event.target.removeEventListener('keypress', inputKey);
+            document.getElementById('startButton').style.display = '';
+            addPersonInput();
+        }
+    }
+
+    function inputKey(event) {
+        if (event.keyCode === 13) { // eslint-disable-line no-magic-numbers
+            event.preventDefault();
+            inputBlur(event);
+        }
+        return false;
+    }
+
+    /* Participant inputs have been filled, Start button pressed */
 
     function startTimer(event) { // eslint-disable-line no-unused-vars
         event.preventDefault();
-        document.getElementById('participant-inputs').style.display = 'none';
-        const inputs = [...document.querySelectorAll('input')].map(e => e.value);
-        console.log(inputs);
+        if (document.ConvoCounter.participantCount >= 2) { // eslint-disable-line no-magic-numbers
+            document.getElementById('participant-inputs').style.display = 'none';
+            document.getElementById('participant-buttons').style.display = '';
+            const inputs = [...document.querySelectorAll('input')].map(e => e.value);
+
+            const list = appendElement(document.getElementById('participant-buttons'), 'ul');
+            inputs.forEach((e) => {
+                const li = appendElement(list, 'li');
+                li.textContent = e;
+            });
+        }
     }
 
     /* Create a new element of type, set given attributes,
