@@ -25,5 +25,6 @@ h2 {
 }
 
 .timerButtonContainer button {
+    height: 8em;
     width: 90%;
 }

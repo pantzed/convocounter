@@ -18,6 +18,7 @@
         inputState();
         id('startButton').addEventListener('click', timerState);
         id('restartLink').addEventListener('click', inputState);
+        id('resetButton').addEventListener('click', resetTimers);
     }
 
     function inputState() {
@@ -93,16 +94,44 @@
             inputs.forEach((e) => {
                 addTimer(e);
             });
+
+            renderTimers();
         }
     }
 
-    function addTimer(element) {
+    function addTimer(name) {
         const container = appendElement(id(BUTTONS_DIV), 'section', {
             class: 'timerButtonContainer'
         });
         const button = appendElement(container, 'button');
         const buttonNum = id(BUTTONS_DIV).children.length;
-        button.textContent = `${buttonNum}: ${element}`;
+        timers.push({
+            button,
+            buttonNum,
+            name,
+            seconds: 0
+        });
+    }
+
+    function renderTimers() {
+        timers.forEach((timer) => {
+            timer.button.innerHTML = `${timer.buttonNum}: ${timer.name}<br>${formatTime(timer.seconds)}`;
+        });
+    }
+
+    function formatTime(time) {
+        /* eslint-disable no-magic-numbers */
+        const minutes = Math.floor(time / 60);
+        const seconds = time / 60;
+        return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
+        /* eslint-enable no-magic-numbers */
+    }
+
+    function resetTimers() {
+        timers.forEach((timer) => {
+            timer.seconds = 0;
+        });
+        renderTimers();
     }
 
     /* DOM helper functions */
