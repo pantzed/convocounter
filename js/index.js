@@ -35,7 +35,7 @@
         input.focus();
     }
 
-    function inputBlur(event) {        
+    function inputBlur(event) {
         if (event.target.value !== '') {
             event.target.removeEventListener('blur', inputBlur);
             event.target.removeEventListener('keypress', inputKey);
