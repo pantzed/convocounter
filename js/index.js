@@ -4,42 +4,48 @@
 /* eslint-disable no-use-before-define */
 
 (() => {
-    document.ConvoCounter = {};
+    const MAX_PARTICIPANTS = 4;
+    const MIN_PARTICIPANTS = 2;
+    let participantCount = 0;
 
     document.addEventListener('DOMContentLoaded', initApp);
 
     function initApp() {
-        document.ConvoCounter.participantCount = 1;
-        document.getElementById('startButton').addEventListener('click', startTimer);
-        document.getElementById('startButton').style.display = 'none';
-        document.getElementById('participant-buttons').style.display = 'none';
+        participantCount = 0;
+        id('startButton').addEventListener('click', startTimer);
+        hideId('startButton');
+        hideId('participant-buttons');
         addPersonInput();
     }
 
+    /* Handle inputting participant names */
+
     function addPersonInput() {
-        const formElement = document.getElementById('participants');
-        const count = document.ConvoCounter.participantCount++;
-        const pname = `pname${count}`;
-        const el = appendElement(formElement, 'label', {
-            for: pname,
-        });
-        el.textContent = `Participant ${count}: `;
-        const input = appendElement(el, 'input', {
-            class: 'participant-name',
-            type: 'text',
-            name: pname,
-            placeholder: 'Participant Name',
-        });
-        // input.addEventListener('blur', inputBlur);
-        input.addEventListener('keypress', inputKey);
-        input.focus();
+        if (participantCount < MAX_PARTICIPANTS) {
+            ++participantCount;
+            const formElement = document.getElementById('participants');
+            const pname = `pname${participantCount}`;
+            const el = appendElement(formElement, 'label', {
+                for: pname,
+            });
+            el.textContent = `Participant ${participantCount}: `;
+            const input = appendElement(el, 'input', {
+                class: 'participant-name',
+                type: 'text',
+                name: pname,
+                placeholder: 'Participant Name',
+            });
+            input.addEventListener('blur', participantInputted);
+            input.addEventListener('keypress', inputKey);
+            input.focus();
+        }
     }
 
-    function inputBlur(event) {
+    function participantInputted(event) {
         if (event.target.value !== '') {
-            event.target.removeEventListener('blur', inputBlur);
+            event.target.removeEventListener('blur', participantInputted);
             event.target.removeEventListener('keypress', inputKey);
-            document.getElementById('startButton').style.display = '';
+            showId('startButton');
             addPersonInput();
         }
     }
@@ -47,7 +53,7 @@
     function inputKey(event) {
         if (event.keyCode === 13) { // eslint-disable-line no-magic-numbers
             event.preventDefault();
-            inputBlur(event);
+            participantInputted(event);
         }
         return false;
     }
@@ -56,12 +62,15 @@
 
     function startTimer(event) { // eslint-disable-line no-unused-vars
         event.preventDefault();
-        if (document.ConvoCounter.participantCount >= 2) { // eslint-disable-line no-magic-numbers
-            document.getElementById('participant-inputs').style.display = 'none';
-            document.getElementById('participant-buttons').style.display = '';
-            const inputs = [...document.querySelectorAll('input')].map(e => e.value);
+        const pCount = participantCount;
+        if (pCount >= MIN_PARTICIPANTS && pCount <= MAX_PARTICIPANTS) {
+            hideId('participant-inputs');
+            showId('participant-buttons');
+            const inputs = [...document.querySelectorAll('input')]
+                .map(e => e.value)
+                .filter(e => e !== '');
 
-            const list = appendElement(document.getElementById('participant-buttons'), 'ul');
+            const list = appendElement(id('participant-buttons'), 'ul');
             inputs.forEach((e) => {
                 const li = appendElement(list, 'li');
                 li.textContent = e;
@@ -69,12 +78,26 @@
         }
     }
 
+    /* DOM helper functions */
+
+    function id(elementId) {
+        return document.getElementById(elementId);
+    }
+
+    function hideId(elementId) {
+        id(elementId).style.display = 'none';
+    }
+
+    function showId(elementId) {
+        id(elementId).style.display = '';
+    }
+
     /* Create a new element of type, set given attributes,
        append it to the parent element, and return the new element */
 
     function appendElement(parent, type, attributes) {
         const el = document.createElement(type);
-        for (const att in attributes) { // eslint-disable-line no-restricted-syntax, guard-for-in
+        for (const att in attributes) { // eslint-disable-line
             el.setAttribute(att, attributes[att]);
         }
         parent.appendChild(el);
