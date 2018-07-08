@@ -6,15 +6,19 @@
 (() => {
     const MAX_PARTICIPANTS = 4;
     const MIN_PARTICIPANTS = 2;
+    const INPUT_DIV = 'participant-inputs';
+    const TIMER_DIV = 'participant-timer';
+    const BUTTONS_DIV = 'participant-buttons';
     let participantCount = 0;
 
     document.addEventListener('DOMContentLoaded', initApp);
 
     function initApp() {
         participantCount = 0;
-        id('startButton').addEventListener('click', startTimer);
+        hideId(TIMER_DIV);
+        showId(INPUT_DIV);
         hideId('startButton');
-        hideId('participant-buttons');
+        id('startButton').addEventListener('click', startTimer);
         addPersonInput();
     }
 
@@ -62,15 +66,16 @@
 
     function startTimer(event) { // eslint-disable-line no-unused-vars
         event.preventDefault();
-        const pCount = participantCount;
-        if (pCount >= MIN_PARTICIPANTS && pCount <= MAX_PARTICIPANTS) {
-            hideId('participant-inputs');
-            showId('participant-buttons');
-            const inputs = [...document.querySelectorAll('input')]
-                .map(e => e.value)
-                .filter(e => e !== '');
+        const inputs = [...document.querySelectorAll('input')]
+            .map(e => e.value)
+            .filter(e => e !== '');
+        const pCount = inputs.length;
 
-            const list = appendElement(id('participant-buttons'), 'ul');
+        if (pCount >= MIN_PARTICIPANTS && pCount <= MAX_PARTICIPANTS) {
+            hideId(INPUT_DIV);
+            showId(TIMER_DIV);
+
+            const list = appendElement(id(BUTTONS_DIV), 'ul');
             inputs.forEach((e) => {
                 const li = appendElement(list, 'li');
                 li.textContent = e;
