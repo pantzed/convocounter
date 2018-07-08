@@ -10,24 +10,38 @@
     const TIMER_DIV = 'participant-timer';
     const BUTTONS_DIV = 'participant-buttons';
     let participantCount = 0;
+    let timers = [];
 
     document.addEventListener('DOMContentLoaded', initApp);
 
     function initApp() {
+        inputState();
+        id('startButton').addEventListener('click', timerState);
+        id('restartLink').addEventListener('click', inputState);
+    }
+
+    function inputState() {
         participantCount = 0;
+        clearInputs();
         hideId(TIMER_DIV);
         showId(INPUT_DIV);
         hideId('startButton');
-        id('startButton').addEventListener('click', startTimer);
-        addPersonInput();
+        addParticipantInput();
     }
 
     /* Handle inputting participant names */
 
-    function addPersonInput() {
+    function clearInputs() {
+        const formElement = id('participants');
+        while (formElement.firstChild) {
+            formElement.removeChild(formElement.firstChild);
+        }
+    }
+
+    function addParticipantInput() {
         if (participantCount < MAX_PARTICIPANTS) {
             ++participantCount;
-            const formElement = document.getElementById('participants');
+            const formElement = id('participants');
             const pname = `pname${participantCount}`;
             const el = appendElement(formElement, 'label', {
                 for: pname,
@@ -50,7 +64,7 @@
             event.target.removeEventListener('blur', participantInputted);
             event.target.removeEventListener('keypress', inputKey);
             showId('startButton');
-            addPersonInput();
+            addParticipantInput();
         }
     }
 
@@ -64,8 +78,9 @@
 
     /* Participant inputs have been filled, Start button pressed */
 
-    function startTimer(event) { // eslint-disable-line no-unused-vars
+    function timerState(event) { // eslint-disable-line no-unused-vars
         event.preventDefault();
+        timers = [];
         const inputs = [...document.querySelectorAll('input')]
             .map(e => e.value)
             .filter(e => e !== '');
@@ -75,12 +90,19 @@
             hideId(INPUT_DIV);
             showId(TIMER_DIV);
 
-            const list = appendElement(id(BUTTONS_DIV), 'ul');
             inputs.forEach((e) => {
-                const li = appendElement(list, 'li');
-                li.textContent = e;
+                addTimer(e);
             });
         }
+    }
+
+    function addTimer(element) {
+        const container = appendElement(id(BUTTONS_DIV), 'section', {
+            class: 'timerButtonContainer'
+        });
+        const button = appendElement(container, 'button');
+        const buttonNum = id(BUTTONS_DIV).children.length;
+        button.textContent = `${buttonNum}: ${element}`;
     }
 
     /* DOM helper functions */

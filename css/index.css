@@ -1,3 +1,29 @@
+h1 {
+    text-align: center;
+    font-weight: 700;
+}
+
+h2 {
+    font-size: 2em;
+}
+
 .participant-name {
     width: 100%;
+}
+
+.restart {
+    cursor: pointer;
+}
+
+.timer-buttons {
+    margin-bottom: 2em;
+}
+
+.timerButtonContainer {
+    display: inline-block;
+    width: 20%;
+}
+
+.timerButtonContainer button {
+    width: 90%;
 }
