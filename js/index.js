@@ -101,9 +101,11 @@
 
     function addTimer(name) {
         const container = appendElement(id(BUTTONS_DIV), 'section', {
-            class: 'timerButtonContainer'
+            class: 'timer-button-container'
         });
-        const button = appendElement(container, 'button');
+        const button = appendElement(container, 'button', {
+            class: 'inactive-timer'
+        });
         const buttonNum = id(BUTTONS_DIV).children.length;
         timers.push({
             button,
@@ -115,8 +117,24 @@
 
     function renderTimers() {
         timers.forEach((timer) => {
-            timer.button.innerHTML = `${timer.buttonNum}: ${timer.name}<br>${formatTime(timer.seconds)}`;
+            timer.button.timer = timer;
+            timer.button.addEventListener('click', activateButton);
+            timer.button.innerHTML = `<span class="timer-name">${timer.buttonNum}: ${timer.name}</span>
+                                      <br><span class="timer-time">${formatTime(timer.seconds)}</span>`;
         });
+    }
+
+    function activateButton() {
+        timers.forEach((timer) => {
+            timer.button.setAttribute('class', 'inactive-timer');
+        });
+        // if (this.className === 'active-timer') {
+        //     this.setAttribute('class', 'inactive-timer');
+        // }
+        // else {
+            this.setAttribute('class', 'active-timer');
+        // }
+        // TBD: toggle when clicked again - or just set/toggle active, then set colors
     }
 
     function formatTime(time) {

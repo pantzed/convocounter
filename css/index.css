@@ -7,6 +7,27 @@ h2 {
     font-size: 2em;
 }
 
+.inactive-timer {
+    color: #fff;
+    background-color: #2980b9;
+    border-color: #2980b9;
+}
+
+.active-timer {
+    color: #fff;
+    background-color: #f39c12;
+    border-color: #f39c12;
+}
+
+.timer-name {
+    font-size: 2em;
+    font-weight: 900;
+}
+
+.timer-time {
+    font-size: 3em;
+}
+
 .participant-name {
     width: 100%;
 }
@@ -19,12 +40,12 @@ h2 {
     margin-bottom: 2em;
 }
 
-.timerButtonContainer {
+.timer-button-container {
     display: inline-block;
     width: 20%;
 }
 
-.timerButtonContainer button {
+.timer-button-container button {
     height: 8em;
     width: 90%;
 }
