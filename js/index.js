@@ -1,60 +1,76 @@
 'use strict';
 
 /* eslint-env browser */
-/* eslint-disable no-use-before-define */
+/* eslint-disable no-use-before-define, no-underscore-dangle */
 
 (() => {
     const MAX_PARTICIPANTS = 4;
     const MIN_PARTICIPANTS = 2;
     const TICK_TIME = 200;
     const ZERO_CODE = 48;
-    const INPUT_DIV = 'participant-inputs';
-    const TIMER_DIV = 'participant-timer';
-    const BUTTONS_DIV = 'participant-buttons';
 
-    let state = null;
-    let participantCount = 0;
-    let timers = [];
-    let interval = null;
+    const BUTTONS_DIV = 'participant-buttons';
+    const INPUT_DIV = 'participant-inputs';
+    const PARTICIPANT_SECTION = 'participants';
+    const RESET_BUTTON = 'resetButton';
+    const RESTART_LINK = 'restartLink';
+    const START_BUTTON = 'startButton';
+    const TIMER_DIV = 'participant-timer';
+
+    let _state = null;
+    let _participantCount = 0;
+    let _timers = [];
+    let _interval = null;
+
+    const states = {
+        STATE_INPUT: setInputState,
+        STATE_TIMER: setTimerState
+    };
 
     document.addEventListener('DOMContentLoaded', initApp);
     document.addEventListener('keydown', onKeyDown);
 
     function initApp() {
-        state = 'STATE_INPUT';
-        inputState();
-        id('startButton').addEventListener('click', timerState);
-        id('restartLink').addEventListener('click', inputState);
-        id('resetButton').addEventListener('click', resetTimers);
+        setState('STATE_INPUT');
+        id(RESET_BUTTON).addEventListener('click', resetTimers);
+        id(RESTART_LINK).addEventListener('click', () => setState('STATE_INPUT'));
+        id(START_BUTTON).addEventListener('click', () => setState('STATE_TIMER'));
     }
 
-    function inputState() {
+    function setState(myState) {
+        if (states.hasOwnProperty(myState)) { // eslint-disable-line no-prototype-builtins
+            _state = myState;
+            states[myState]();
+        }
+    }
+
+    /* Input state functions */
+
+    function setInputState() {
         clearInputs();
         hideId(TIMER_DIV);
         showId(INPUT_DIV);
-        hideId('startButton');
+        hideId(START_BUTTON);
         addParticipantInput();
     }
 
-    /* Handle inputting participant names */
-
     function clearInputs() {
-        participantCount = 0;
-        const formElement = id('participants');
+        _participantCount = 0;
+        const formElement = id(PARTICIPANT_SECTION);
         while (formElement.firstChild) {
             formElement.removeChild(formElement.firstChild);
         }
     }
 
     function addParticipantInput() {
-        if (participantCount < MAX_PARTICIPANTS) {
-            ++participantCount;
-            const formElement = id('participants');
-            const pname = `pname${participantCount}`;
+        if (_participantCount < MAX_PARTICIPANTS) {
+            ++_participantCount;
+            const formElement = id(PARTICIPANT_SECTION);
+            const pname = `pname${_participantCount}`;
             const el = appendElement(formElement, 'label', {
                 for: pname,
             });
-            el.textContent = `Participant ${participantCount}: `;
+            el.textContent = `Participant ${_participantCount}: `;
             const input = appendElement(el, 'input', {
                 class: 'participant-name',
                 type: 'text',
@@ -71,7 +87,7 @@
         if (event.target.value !== '') {
             event.target.removeEventListener('blur', participantInputted);
             event.target.removeEventListener('keypress', inputKey);
-            showId('startButton');
+            showId(START_BUTTON);
             addParticipantInput();
         }
     }
@@ -84,22 +100,20 @@
         return false;
     }
 
-    /* Participant inputs have been filled, Start button pressed */
+    /* Timer state functions */
 
-    function timerState(event) { // eslint-disable-line no-unused-vars
-        event.preventDefault();
-        state = 'STATE_TIMER';
+    function setTimerState() {
         clearTimers();
-        const inputs = [...document.querySelectorAll('input')]
+        const inputNames = [...document.querySelectorAll('input')]
             .map(e => e.value)
             .filter(e => e !== '');
-        const pCount = inputs.length;
+        const pCount = inputNames.length;
 
         if (pCount >= MIN_PARTICIPANTS && pCount <= MAX_PARTICIPANTS) {
             hideId(INPUT_DIV);
             showId(TIMER_DIV);
 
-            inputs.forEach((e) => {
+            inputNames.forEach((e) => {
                 addTimer(e);
             });
 
@@ -125,11 +139,11 @@
             active: false
         };
         button.timer = timer;
-        timers.push(timer);
+        _timers.push(timer);
     }
 
     function renderTimers() {
-        timers.forEach((timer) => {
+        _timers.forEach((timer) => {
             timer.button.setAttribute('class', timer.active ? 'active-timer' : 'inactive-timer');
             timer.button.innerHTML = `<span class="timer-name">${timer.buttonNum}: ${timer.name}</span>
                                       <br><span class="timer-time">${formatTime(timer.ms)}</span>`;
@@ -137,7 +151,7 @@
     }
 
     function clearTimers() {
-        timers = [];
+        _timers = [];
         const formElement = id(BUTTONS_DIV);
         while (formElement.firstChild) {
             formElement.removeChild(formElement.firstChild);
@@ -145,7 +159,7 @@
     }
 
     function onKeyDown(event) {
-        if (state === 'STATE_TIMER') {
+        if (_state === 'STATE_TIMER') {
             const num = event.keyCode - ZERO_CODE;
             if (num > 0 && num <= MAX_PARTICIPANTS) {
                 activateButton(num);
@@ -155,22 +169,19 @@
 
     function activateButton(buttonNum) {
         let buttonTimer = null;
-        if (typeof buttonNum === 'number' && buttonNum) {
-            buttonTimer = timers[buttonNum - 1];
-        }
-        else {
+        buttonTimer = (typeof buttonNum === 'number' && buttonNum) ?
+            _timers[buttonNum - 1] :
             buttonTimer = this.timer;
-        }
 
         const toggle = buttonTimer.active;
-        clearInterval(interval);
-        timers.forEach((timer) => {
+        clearInterval(_interval);
+        _timers.forEach((timer) => {
             timer.active = false;
         });
         buttonTimer.active = !toggle;
         if (buttonTimer.active) {
             buttonTimer.lastTime = Date.now();
-            interval = setInterval(timerTick, TICK_TIME, buttonTimer);
+            _interval = setInterval(timerTick, TICK_TIME, buttonTimer);
         }
         renderTimers();
     }
@@ -190,7 +201,7 @@
     }
 
     function resetTimers() {
-        timers.forEach((timer) => {
+        _timers.forEach((timer) => {
             timer.ms = 0;
             timer.active = false;
         });
