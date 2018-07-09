@@ -4,7 +4,7 @@
 /* eslint-disable no-use-before-define, no-underscore-dangle */
 
 (() => {
-    const MAX_PARTICIPANTS = 4;
+    const MAX_PARTICIPANTS = 8;
     const MIN_PARTICIPANTS = 2;
     const TICK_TIME = 200;
     const ZERO_CODE = 48;
@@ -50,7 +50,7 @@
         clearInputs();
         hideId(TIMER_DIV);
         showId(INPUT_DIV);
-        hideId(START_BUTTON);
+        id(START_BUTTON).disabled = true;
         addParticipantInput();
     }
 
@@ -87,7 +87,9 @@
         if (event.target.value !== '') {
             event.target.removeEventListener('blur', participantInputted);
             event.target.removeEventListener('keypress', inputKey);
-            showId(START_BUTTON);
+            if (_participantCount >= MIN_PARTICIPANTS) {
+                id(START_BUTTON).disabled = false;
+            }
             addParticipantInput();
         }
     }
