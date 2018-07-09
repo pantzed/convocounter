@@ -7,17 +7,21 @@
     const MAX_PARTICIPANTS = 4;
     const MIN_PARTICIPANTS = 2;
     const TICK_TIME = 200;
+    const ZERO_CODE = 48;
     const INPUT_DIV = 'participant-inputs';
     const TIMER_DIV = 'participant-timer';
     const BUTTONS_DIV = 'participant-buttons';
 
+    let state = null;
     let participantCount = 0;
     let timers = [];
     let interval = null;
 
     document.addEventListener('DOMContentLoaded', initApp);
+    document.addEventListener('keydown', onKeyDown);
 
     function initApp() {
+        state = 'STATE_INPUT';
         inputState();
         id('startButton').addEventListener('click', timerState);
         id('restartLink').addEventListener('click', inputState);
@@ -25,7 +29,6 @@
     }
 
     function inputState() {
-        participantCount = 0;
         clearInputs();
         hideId(TIMER_DIV);
         showId(INPUT_DIV);
@@ -36,6 +39,7 @@
     /* Handle inputting participant names */
 
     function clearInputs() {
+        participantCount = 0;
         const formElement = id('participants');
         while (formElement.firstChild) {
             formElement.removeChild(formElement.firstChild);
@@ -84,7 +88,8 @@
 
     function timerState(event) { // eslint-disable-line no-unused-vars
         event.preventDefault();
-        timers = [];
+        state = 'STATE_TIMER';
+        clearTimers();
         const inputs = [...document.querySelectorAll('input')]
             .map(e => e.value)
             .filter(e => e !== '');
@@ -131,16 +136,41 @@
         });
     }
 
-    function activateButton() {
-        const toggle = this.timer.active;
+    function clearTimers() {
+        timers = [];
+        const formElement = id(BUTTONS_DIV);
+        while (formElement.firstChild) {
+            formElement.removeChild(formElement.firstChild);
+        }
+    }
+
+    function onKeyDown(event) {
+        if (state === 'STATE_TIMER') {
+            const num = event.keyCode - ZERO_CODE;
+            if (num > 0 && num <= MAX_PARTICIPANTS) {
+                activateButton(num);
+            }
+        }
+    }
+
+    function activateButton(buttonNum) {
+        let buttonTimer = null;
+        if (typeof buttonNum === 'number' && buttonNum) {
+            buttonTimer = timers[buttonNum - 1];
+        }
+        else {
+            buttonTimer = this.timer;
+        }
+
+        const toggle = buttonTimer.active;
         clearInterval(interval);
         timers.forEach((timer) => {
             timer.active = false;
         });
-        this.timer.active = !toggle;
-        if (this.timer.active) {
-            this.timer.lastTime = Date.now();
-            interval = setInterval(timerTick, TICK_TIME, this.timer);
+        buttonTimer.active = !toggle;
+        if (buttonTimer.active) {
+            buttonTimer.lastTime = Date.now();
+            interval = setInterval(timerTick, TICK_TIME, buttonTimer);
         }
         renderTimers();
     }
@@ -161,7 +191,8 @@
 
     function resetTimers() {
         timers.forEach((timer) => {
-            timer.seconds = 0;
+            timer.ms = 0;
+            timer.active = false;
         });
         renderTimers();
     }
