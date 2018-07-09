@@ -15,19 +15,20 @@
     <div class="container">
         <h1>Conversation Counter</h1>
         <div id="participant-inputs">
-            <h2>Enter Participants:</h2>
-            <form name="participant-form" onsubmit="return false">
-                <section id="participants"></section>
-                <button id="startButton" class="button-success u-pull-right">Start</button>
-            </form>
+            <section class="form-title">Enter Participants:
+                <button id="startButton" class=" start-button button-success u-pull-right">Start</button>
+            </section>
+            <section id="participants"></section>
         </div>
         <div id="participant-timer">
             <section id="participant-buttons" class="timer-buttons"></section>
-            <button id="resetButton" class="button-primary">Reset</button>
-            <section><a id="restartLink" class="restart">Start Over</a></section>
+            <section>
+                <button id="resetButton" class="button-primary">Reset</button>
+                <a id="restartLink" class="restart u-pull-right">Start Over</a>
+            </section>
         </div>
     </div>
 </body>
 <script src="js/index.js"></script>
-
+ 
 </html>

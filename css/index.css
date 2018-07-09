@@ -1,40 +1,30 @@
 h1 {
-    text-align: center;
+    background-color: lightblue;
     font-weight: 700;
+    padding: 20px 0;
+    text-align: center;
 }
 
-h2 {
+/* Participant input form */
+
+.form-title {
     font-size: 2em;
-}
-
-.inactive-timer {
-    color: #fff;
-    background-color: #2980b9;
-    border-color: #2980b9;
-}
-
-.active-timer {
-    color: #fff;
-    background-color: #f39c12;
-    border-color: #f39c12;
-}
-
-.timer-name {
-    font-size: 2em;
-    font-weight: 900;
-}
-
-.timer-time {
-    font-size: 3em;
 }
 
 .participant-name {
     width: 100%;
 }
 
-.restart {
-    cursor: pointer;
+.start-button {
+    margin-top: 10px;
 }
+
+.start-button:disabled {
+    background-color: lightgray;
+    border-color: white;
+}
+
+/* Timer buttons */
 
 .timer-buttons {
     margin-bottom: 2em;
@@ -42,10 +32,41 @@ h2 {
 
 .timer-button-container {
     display: inline-block;
-    width: 20%;
+    text-align: center;
+    width: 25%;
 }
 
 .timer-button-container button {
-    height: 8em;
-    width: 90%;
+    height: 9em;
+    padding: 0;
+    width: 95%;
+}
+
+.inactive-timer, .inactive-timer:hover, .inactive-timer:focus {
+    color: #fff;
+    background-color: #2980b9;
+    border-color: #2980b9;
+}
+
+.active-timer, .active-timer:hover, .active-timer:focus {
+    color: #fff;
+    background-color: #f39c12;
+    border-color: #f39c12;
+}
+
+.timer-name {
+    font-size: 2em;
+    font-weight: 500;
+}
+
+.timer-time {
+    font-size: 3em;
+}
+
+/* Timer UI */
+
+.restart {
+    cursor: pointer;
+    margin-right: 2%;
+    margin-top: 1.4em;
 }
