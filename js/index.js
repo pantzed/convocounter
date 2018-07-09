@@ -6,11 +6,14 @@
 (() => {
     const MAX_PARTICIPANTS = 4;
     const MIN_PARTICIPANTS = 2;
+    const TICK_TIME = 200;
     const INPUT_DIV = 'participant-inputs';
     const TIMER_DIV = 'participant-timer';
     const BUTTONS_DIV = 'participant-buttons';
+
     let participantCount = 0;
     let timers = [];
+    let interval = null;
 
     document.addEventListener('DOMContentLoaded', initApp);
 
@@ -106,41 +109,52 @@
         const button = appendElement(container, 'button', {
             class: 'inactive-timer'
         });
+        button.addEventListener('click', activateButton);
         const buttonNum = id(BUTTONS_DIV).children.length;
-        timers.push({
+
+        const timer = {
             button,
             buttonNum,
             name,
-            seconds: 0
-        });
+            ms: 0,
+            active: false
+        };
+        button.timer = timer;
+        timers.push(timer);
     }
 
     function renderTimers() {
         timers.forEach((timer) => {
-            timer.button.timer = timer;
-            timer.button.addEventListener('click', activateButton);
+            timer.button.setAttribute('class', timer.active ? 'active-timer' : 'inactive-timer');
             timer.button.innerHTML = `<span class="timer-name">${timer.buttonNum}: ${timer.name}</span>
-                                      <br><span class="timer-time">${formatTime(timer.seconds)}</span>`;
+                                      <br><span class="timer-time">${formatTime(timer.ms)}</span>`;
         });
     }
 
     function activateButton() {
+        const toggle = this.timer.active;
+        clearInterval(interval);
         timers.forEach((timer) => {
-            timer.button.setAttribute('class', 'inactive-timer');
+            timer.active = false;
         });
-        // if (this.className === 'active-timer') {
-        //     this.setAttribute('class', 'inactive-timer');
-        // }
-        // else {
-            this.setAttribute('class', 'active-timer');
-        // }
-        // TBD: toggle when clicked again - or just set/toggle active, then set colors
+        this.timer.active = !toggle;
+        if (this.timer.active) {
+            this.timer.lastTime = Date.now();
+            interval = setInterval(timerTick, TICK_TIME, this.timer);
+        }
+        renderTimers();
     }
 
-    function formatTime(time) {
+    function timerTick(timer) {
+        timer.ms += (Date.now() - timer.lastTime);
+        timer.lastTime = Date.now();
+        renderTimers();
+    }
+
+    function formatTime(ms) {
         /* eslint-disable no-magic-numbers */
-        const minutes = Math.floor(time / 60);
-        const seconds = time / 60;
+        const minutes = Math.floor(ms / 60000);
+        const seconds = Math.floor((ms / 1000) % 60);
         return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
         /* eslint-enable no-magic-numbers */
     }
