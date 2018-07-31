@@ -205,7 +205,6 @@
     function resetTimers() {
         _timers.forEach((timer) => {
             timer.ms = 0;
-            timer.active = false;
         });
         renderTimers();
     }
